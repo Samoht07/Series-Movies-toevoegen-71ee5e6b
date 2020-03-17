@@ -40,23 +40,23 @@ $moviedata = $pdo->query('SELECT * from movies');
     </form>
     <table>
     <?php
-        if(isset($_POST["upload"])){
-            $title = $_POST['titleUpload'];
-            $duur = $_POST['duurUpload'];
-            $datum = $_POST['datumUpload'];
-            $land = $_POST['landUpload'];
-            $omschrijf = $_POST['omschrijfUpload'];
-            $moviedata = $pdo->query('SELECT * from movies');
+    if(isset($_POST["upload"])) {
+        $title = $_POST['titleUpload'];
+        $duur = $_POST['duurUpload'];
+        $datum = $_POST['datumUpload'];
+        $land = $_POST['landUpload'];
+        $omschrijf = $_POST['omschrijfUpload'];
+        $moviedata = $pdo->query('SELECT * from movies');
 
-            $query = "INSERT INTO `movies` (title, duur, datum_van_uitkomst, land_van_uitkomst, description) VALUES (:title, :duur, :datum, :land, :omschrijf)";
+        $query = "INSERT INTO `movies` (title, duur, datum_van_uitkomst, land_van_uitkomst, description) VALUES (:title, :duur, :datum, :land, :omschrijf)";
 
-            $pdoresult = $pdo->prepare($query);
+        $pdoresult = $pdo->prepare($query);
 
-            $pdoExec = $pdoresult->execute(array(":title"=>$title,":duur"=>$duur,":datum"=>$datum,":land"=>$land,":omschrijf"=>$omschrijf));
-            header("Location: ./index.php?link=".$_GET['link']."");
-        } 
+        $pdoExec = $pdoresult->execute(array(":title"=>$title,":duur"=>$duur,":datum"=>$datum,":land"=>$land,":omschrijf"=>$omschrijf));
+        header("Location: ./index.php?link=".$_GET['link']."");
+    } 
 
-        foreach ($moviedata as $row){
+    foreach ($moviedata as $row){
     ?>
         <tr>
             <td>
@@ -71,7 +71,7 @@ $moviedata = $pdo->query('SELECT * from movies');
             <td><?php echo "title: " .  $row['omschrijf']; ?></td>
         </tr>
     <?php
-        }
+    }
     ?>
     </table>
 </body>
