@@ -57,7 +57,7 @@ $moviedata = $pdo->query('SELECT * from movies');
     } 
 
     foreach ($moviedata as $row){
-    ?>
+        ?>
         <tr>
             <td>
                 <form method="get">
