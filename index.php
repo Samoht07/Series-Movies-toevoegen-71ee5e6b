@@ -6,74 +6,73 @@ $pass = '';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-
-$pdo = new PDO($dsn, $user, $pass);
-
-$stmt = $pdo->prepare("SELECT * FROM movies WHERE volgnummer = :id");
-$film = $_GET['id'];
-$stmt->bindParam(':id', $film);
-$stmt->execute();
-
-$film = $stmt->fetch(PDO::FETCH_OBJ);
-
-function getTitle()
-{
-    global $film;
-    return $film->title;
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOExeption $e) {
+    throw new \PDOExeption($e->getMessage("no connection"), (int)$e->getCode());
 }
-
-function getDuration()
-{
-    global $film;
-    return $film->duur;
-}
-
-function getDatum()
-{
-    global $film;
-    return $film->datum;
-}
-
-function getCountry()
-{
-    global $film;
-    return $film->land;
-}
-
-function getDescription()
-{
-    global $film;
-    return $film->omschrijving;
-}
-
-function getTrailerID()
-{
-    global $film;
-    return $film->trailer_id;
-}
-
+$moviedata = $pdo->query('SELECT * from movies');
 ?>
-<h2><?php echo getTitle(); echo ' - ' . getDuration();?></h2>
 
-<form method="post" action="films_update.php">
-    <input type="hidden" name="id" value=<?php echo $film_id;?>>
-    <label for="title">Titel</label>
-    <input type="text" name="title" value=<?php echo "'" . getTitle() . "'"; ?>>
-    <br></br>
-    <label for="duur">Duur</label>
-    <input type="duur" name="duur" value=<?php echo getDuration(); ?>>
-    <br></br>
-    <label for="datum_uitkomst">Datum van uitkomst</label>
-    <input type="text" name="datum" value=<?php echo getDatum();?>>
-    <br></br>
-    <label for="land_uitkomst">Land van uitkomst</label>
-    <input type="text" name="land" value=<?php echo getCountry();?>>
-    <br></br>
-    <label for="omschrijving">Omschrijving</label>
-    <textarea name="omschrijving" cols="30" rows="10"><?php echo getDescription();?></textarea>
-    <br></br>
-    <label for="trailer_id">Trailer id</label>
-    <input type="text" name="trailer_id" value=<?php echo getTrailerID();?>>
-    <br></br>
-    <input type="submit" value="save">
-</form>
+<html>
+
+<head>
+</head>
+
+<body>
+    <form method="post">
+        <h1>Titel: </h1><br>
+        <input type="text" name="titleUpload"><br>
+        <h1>Duur: </h1><br>
+        <input type="number" name="duurUpload"><br>
+        <h1>Datum van uitkomst: </h1><br>
+        <input type="text" name="datumUpload"><br>
+        <h1>Land van uitkomst: </h1>
+        <input type="text" name="landUpload"><br>
+        <h1>Omschrijving: </h1>
+        <input type="text" name="omschrijfUpload" size="50"><br>
+        <input type="submit" name="upload">
+    </form>
+    <table>
+    <?php
+        if(isset($_POST["upload"])){
+            $title = $_POST['titleUpload'];
+            $duur = $_POST['duurUpload'];
+            $datum = $_POST['datumUpload'];
+            $land = $_POST['landUpload'];
+            $omschrijf = $_POST['omschrijfUpload'];
+            $moviedata = $pdo->query('SELECT * from movies');
+
+            $query = "INSERT INTO `movies` (title, duur, datum_van_uitkomst, land_van_uitkomst, description) VALUES (:title, :duur, :datum, :land, :omschrijf)";
+
+            $pdoresult = $pdo->prepare($query);
+
+            $pdoExec = $pdoresult->execute(array(":title"=>$title,":duur"=>$duur,":datum"=>$datum,":land"=>$land,":omschrijf"=>$omschrijf));
+            header("Location: ./index.php?link=".$_GET['link']."");
+        } 
+
+        foreach ($moviedata as $row){
+    ?>
+        <tr>
+            <td>
+                <form method="get">
+                <input name="link" type="submit" value="<?php echo $row['id'] ?>">
+                </form>
+            </td>
+            <td><?php echo "title: " .  $row['title']; ?></td>
+            <td><?php echo "title: " .  $row['duur']; ?></td>
+            <td><?php echo "title: " .  $row['datum']; ?></td>
+            <td><?php echo "title: " .  $row['land']; ?></td>
+            <td><?php echo "title: " .  $row['omschrijf']; ?></td>
+        </tr>
+    <?php
+        }
+    ?>
+    </table>
+</body>
+</html>
